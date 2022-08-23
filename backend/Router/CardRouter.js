@@ -1,9 +1,20 @@
 const express = require('express');
-const card = require('../Model/CardModel');
-const { saveCard } = require('./CardRouter.controller');
+const Card = require('../Model/CardModel');
+const {
+    saveCard,
+    getAllCards,
+    getCardById,
+    editCardById,
+} = require('./CardRouter.controller');
 
 const CardRouter = express.Router();
 
 CardRouter.post('/', saveCard);
 
-export default CardRouter;
+CardRouter.get('/', getAllCards);
+
+CardRouter.get('/:id', getCardById);
+
+CardRouter.put('/:id', editCardById);
+
+module.exports = CardRouter;

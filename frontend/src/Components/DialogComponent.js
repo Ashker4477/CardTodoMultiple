@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -9,7 +8,13 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { ColomnData } from '../Utils/DropDownData';
+import { fetchInitialCardData } from '../features/CardReducer/CardReducer';
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { getError } from '../Utils/getError';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -49,14 +54,40 @@ BootstrapDialogTitle.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-export default function DialogComponent({ openButton }) {
+export default function DialogComponent({ edit, id }) {
     const [open, setOpen] = useState(false);
+    const [header, setHeader] = useState('');
+    const dispatch = useDispatch();
 
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         colomn: 1,
     });
+
+    const [formError, setFormError] = useState({
+        title_error: '',
+        description_error: '',
+    });
+
+    const getData = async (id) => {
+        if (edit && id && open) {
+            try {
+                const { data } = await axios.get(
+                    `http://localhost:8000/card/${id}`
+                );
+                setFormData(data);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    };
+
+    useEffect(() => {
+        setHeader(() => (edit ? 'Edit Card Data' : 'Add Card Data'));
+        if (open) getData(id);
+        // return () => getData(id);
+    }, [open]);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -81,15 +112,52 @@ export default function DialogComponent({ openButton }) {
         });
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         // todo save api
+        let title_validation = formData.title.match(
+            formData.title.toUpperCase()
+        );
+        if (!title_validation) return;
+        if (formData.description.length < 25) return;
+        if (edit) {
+            try {
+                const res = await axios.put(
+                    `http://localhost:8000/card/${id}`,
+                    formData
+                );
+                if (res.error) {
+                    toast.error(res.error);
+                }
+                toast.success('Card Updated Successfully');
+                dispatch(fetchInitialCardData());
+            } catch (err) {
+                toast.error(getError(err));
+                console.log(err);
+            }
+        } else {
+            try {
+                const res = await axios.post(
+                    'http://localhost:8000/card',
+                    formData
+                );
+                if (res.error) {
+                    toast.error(res.error);
+                }
+                toast.success('Card Added Successfully');
+                dispatch(fetchInitialCardData());
+            } catch (err) {
+                toast.error(getError(err));
+                console.log(err);
+            }
+        }
+        handleClose();
     };
 
     return (
         <div>
             <IconButton aria-label="settings" onClick={handleClickOpen}>
-                <AddIcon />
+                {edit ? <MoreVertIcon /> : <AddIcon />}
             </IconButton>
             <BootstrapDialog
                 onClose={handleClose}
@@ -105,7 +173,7 @@ export default function DialogComponent({ openButton }) {
                         id="customized-dialog-title"
                         onClose={handleClose}
                     >
-                        Add Card
+                        {header}
                     </BootstrapDialogTitle>
                     <DialogContent dividers>
                         <>

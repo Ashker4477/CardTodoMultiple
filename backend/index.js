@@ -1,12 +1,19 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const mongoose = require('mongoose');
-const { default: CardRouter } = require('./Router/CardRouter');
+const CardRouter = require('./Router/CardRouter');
 
-dotenv.config();
 const app = express();
 
+dotenv.config();
+
 app.use(express.json());
+app.use(cors());
+mongoose.connect(
+    process.env.MONGODB_URI || `mongodb://localhost:27017/sample`,
+    () => console.log(`DB connected`)
+);
 
 app.use('/card', CardRouter);
 

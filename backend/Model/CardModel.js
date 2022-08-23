@@ -1,20 +1,25 @@
 const mongoose = require('mongoose');
 
-const cardSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        unique: true,
+const cardSchema = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+        description: {
+            type: String,
+            required: true,
+        },
+        colomn: {
+            type: Number,
+            required: true,
+        },
     },
-    description: {
-        type: String,
-        required: true,
-    },
-    colomn: {
-        type: String,
-        required: true,
-    },
-});
+    {
+        timestamps: true,
+    }
+);
 
-const card = mongoose.model('Card', cardSchema);
-module.exports = card;
+const Card = mongoose.model('Card', cardSchema);
+module.exports = Card;
