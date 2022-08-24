@@ -47,6 +47,7 @@ export const { start, success, fail } = CardSlice.actions;
 export const fetchInitialCardData = () => async (dispatch, getState) => {
     dispatch(start());
     try {
+        console.log('first');
         const { data } = await axios.get('http://localhost:8000/card');
         dispatch(success(data));
     } catch (err) {
@@ -54,6 +55,5 @@ export const fetchInitialCardData = () => async (dispatch, getState) => {
         dispatch(fail(getError(err)));
     }
 };
-export const AddCardData = (data) => async (dispatch) => {};
 
 export default CardSlice.reducer;

@@ -9,12 +9,12 @@ import { fetchInitialCardData } from './features/CardReducer/CardReducer';
 function App() {
     const dispatch = useDispatch();
 
-    const { cardData } = useSelector((state) => state.card);
-
     useEffect(() => {
-        dispatch(fetchInitialCardData);
+        dispatch(fetchInitialCardData());
         return () => dispatch(fetchInitialCardData());
     }, []);
+
+    const { cardData } = useSelector((state) => state.card);
 
     return (
         <div className="App">
